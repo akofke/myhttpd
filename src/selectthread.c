@@ -3,7 +3,7 @@
 #include <myhttpd.h>
 #include <queue>
 
-int selector_thread(int numthread, bool sorttype){ // sorttype: true for FCFS, false for SJF
+int thread_selector(int numthread, bool sorttype){ // sorttype: true for FCFS, false for SJF
 	int curthreads = 0;
 	if (sorttype){ //First Come First Serve implementation
 		
