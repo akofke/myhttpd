@@ -2,7 +2,7 @@
 
 #include <myhttpd.h>
 
-int handlejob(char request[]){
+int handlerequest(char request[]){
 	//Code for handling a given html request
 	return 0;
 }
