@@ -1,5 +1,5 @@
 // listenerthread.c functions
-int listenerthread();
+int server();
 
 // selectorthread.c functions
 int selectorthread(int numthread, bool sorttype); // sorttype: true for FCFS, false for SJF
