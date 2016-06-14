@@ -2,6 +2,6 @@
 
 #include "myhttpd.h"
 
-int listenerthread(){
+int server(){
     return 0;
 }
