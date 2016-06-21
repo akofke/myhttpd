@@ -45,6 +45,17 @@ int main(int argc, char *argv[]) {
         }
 
     }
+
+    /*
+     * Daemonize the process using daemon() standard library call
+     * TODO: only fork if -d option is not set
+     */
+    if(daemon(0,0) < 0) {
+        fprintf(stderr, "error forking daemon process");
+        exit(1);
+    }
+
+    sleep(20);
 }
 
 void usage(int is_err) {
