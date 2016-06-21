@@ -26,10 +26,6 @@ struct handler {
 
 struct handler *threadarr;
 
-int
-main(int argc,char *argv[])
-{ return 0; }
-
 int add_request(char *request, int length){ // request is the string of the HTML request, the length is the length of the request. length doesn't matter if using FCFS
 	sem_wait(sem_reqlist_access);
 	
