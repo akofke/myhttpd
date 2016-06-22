@@ -1,7 +1,7 @@
 CC = gcc
 
 # use gdb, all warnings, link pthreads
-FLAGS = -g -Wall -pthread
+FLAGS = -g -Wall -Wpedantic -Wextra -pthread
 SOURCE = src/*.c
 OUTPUT = myhttpd
 

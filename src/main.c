@@ -3,6 +3,8 @@
 #include <unistd.h>
 #include <ctype.h>
 
+#include "logging.h"
+
 void usage(int is_err);
 
 int main(int argc, char *argv[]) {
