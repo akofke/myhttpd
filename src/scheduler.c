@@ -11,6 +11,7 @@ struct node {
 
 struct request {
     int len;
+    int fd;
     char *req;
 };
 
@@ -26,7 +27,7 @@ struct handler {
 
 struct handler *threadarr;
 
-int add_request(char *request, int length){ // request is the string of the HTML request, the length is the length of the request. length doesn't matter if using FCFS
+int add_request(char *request, int length, int fdesc){ // request is the string of the HTML request, the length is the length of the request. length doesn't matter if using FCFS
     sem_wait(sem_reqlist_access);
 
     struct node *reqlist = requestlist;
@@ -34,6 +35,7 @@ int add_request(char *request, int length){ // request is the string of the HTML
     if (reqlist->next=NULL){
         reqlist->request->req=request;
         reqlist->request->len=length;
+        reqlist->request->fd=fdesc;
     }
     else if (sjf){
         while (reqlist->next != NULL && length < reqlist->request->len)
@@ -42,6 +44,7 @@ int add_request(char *request, int length){ // request is the string of the HTML
         reqlist->next = malloc(sizeof(struct node));
         reqlist->next->request->req = request;
         reqlist->next->request->len = length;
+        reqlist->request->fd = fdesc;
         reqlist->next->next = templist;
     }
     else {
@@ -51,6 +54,7 @@ int add_request(char *request, int length){ // request is the string of the HTML
         reqlist->next = malloc(sizeof(struct node));
         reqlist->next->request->req = request;
         reqlist->next->request->len = length;
+        reqlist->request->fd = fdesc;
         reqlist->next->next = templist;
     }
 
@@ -115,7 +119,7 @@ int use_request(){
     }
     threadarr[i].available = 0;
     threadarr[i].request=requesttouse;
-    //log_request(requesttouse);
+    //int log_request(char *remote_ip, time_t enq_time, time_t assn_time, char *req, char *status, int resp_size);
     sem_post(threadarr[i].sem_thread);
 
     return 0;
@@ -125,7 +129,7 @@ void* handler_thread(void *arg){ //starting point for handler thread
     struct handler * handlerstatus = (struct handler *)arg;
     while (1){
         sem_wait(handlerstatus->sem_thread);
-        //run_handler(handlerstatus->request->req, handlerstatus->request->len);
+        //run_handler(handlerstatus->request->req, handlerstatus->request->len, handlerstatus->request->fd;);
         handlerstatus->available = 1;
         sem_post(sem_nothread);
     }
