@@ -99,7 +99,7 @@ void serve_connections(int sockfd) {
 
         // debug
         printf("%s\n", recv_buf);
-
+        add_request(recv_buf, 0 /*whatever method louis uses to get the length of a request, call it here instead*/, accepted_fd);
     }
 
 }
