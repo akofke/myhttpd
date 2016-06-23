@@ -2,17 +2,47 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <ctype.h>
+#include <assert.h>
+#include <string.h>
 
 #include "logging.h"
+#include "myhttpd.h"
+#include "server.h"
+
+#define DEFAULT_PORT "8080"
+#define DEFAULT_TIME_DELAY 60
+#define DEFAULT_THREADNUM 4
+#define DEFAULT_SCHED_POLICY FCFS
 
 void usage(int is_err);
 
 int main(int argc, char *argv[]) {
+
+    myhttpd_opts opts;
+
+    /*
+     * Find the directory myhttpd was invoked in,
+     * to set the default document root
+     */
+    if(getcwd(opts.doc_root, PATH_STRSIZE) == NULL) {
+        perror("error getting current working directory");
+        exit(1);
+    }
+
+    opts.debug_mode = 0;
+    opts.q_time_delay = DEFAULT_TIME_DELAY;
+    opts.numthreads = DEFAULT_THREADNUM;
+    opts.policy = DEFAULT_SCHED_POLICY;
+
+    strcpy(opts.myhttpd_port, DEFAULT_PORT);
+    printf("%s\n", opts.doc_root);
+
     int c;
     while((c = getopt(argc, argv, "dhl:r:t:n:s:")) != -1) {
         switch(c) {
             case 'd':
                 // debugging mode
+                opts.debug_mode = 1;
                 break;
             case 'h':
                 // help, usage
@@ -20,12 +50,25 @@ int main(int argc, char *argv[]) {
                 break;
             case 'l':
                 // logging
+
+                // we don't want buffer overflow
+                assert(strlen(optarg) < PATH_STRSIZE);
+                strcpy(opts.logfile_path, optarg);
                 break;
             case 'p':
                 // port
+
+                /* TODO: atoi cannot detect errors so this isn't the
+                 * best solution. If I have time I'll convert this to strtol
+                 */
+
+                assert(strlen(optarg) < MAX_PORT_LEN);
+                strcpy(opts.myhttpd_port, optarg);
                 break;
             case 'r':
                 // root directory
+                assert(strlen(optarg) < PATH_STRSIZE);
+                strcpy(opts.doc_root, optarg);
                 break;
             case 't':
                 // queuing time
@@ -42,22 +85,27 @@ int main(int argc, char *argv[]) {
                 break;
             default:
                 // something went very wrong if we are here
+                fprintf(stderr, "error getting command line opts");
                 abort();
 
         }
 
     }
 
-    /*
-     * Daemonize the process using daemon() standard library call
-     * TODO: only fork if -d option is not set
-     */
-    if(daemon(0,0) < 0) {
-        fprintf(stderr, "error forking daemon process");
-        exit(1);
+    if (!opts.debug_mode) {
+        /*
+         * Daemonize the process using daemon() standard library call
+         * TODO: only fork if -d option is not set
+         */
+        if(daemon(0,0) < 0) {
+            fprintf(stderr, "error forking daemon process");
+            exit(1);
+        }
+
+        sleep(20);
+
     }
 
-    sleep(20);
 }
 
 void usage(int is_err) {

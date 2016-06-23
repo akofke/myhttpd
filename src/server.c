@@ -11,7 +11,13 @@
 
 void serve_connections(int sockfd);
 
-void get_server_addrinfo(char *port, struct addrinfo *info) {
+/*
+ * Setup server to accept connections
+ */
+void setup_server(const char *port) {
+    // get local address info
+    struct addrinfo *info;
+    //get_server_addrinfo(port, info); 
     struct addrinfo hints;
     int status;
 
@@ -31,15 +37,6 @@ void get_server_addrinfo(char *port, struct addrinfo *info) {
         fprintf(stderr, "Error getting server addrinfo: %s", gai_strerror(status));
         exit(1);
     }
-}
-
-/*
- * Setup server to accept connections
- */
-void setup_server(char *port) {
-    // get local address info
-    struct addrinfo *info;
-    get_server_addrinfo(port, info);
 
     /* create a socket.
      * socket() call takes the domain (PF_INET), the socket type (SOCK_STREAM),
