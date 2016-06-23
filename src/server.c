@@ -15,7 +15,6 @@ void serve_connections(int sockfd);
  * Setup server to accept connections
  */
 void setup_server(const char *port) {
-    // get local address info
     struct addrinfo *info;
     //get_server_addrinfo(port, info); 
     struct addrinfo hints;
@@ -81,7 +80,7 @@ void serve_connections(int sockfd) {
         struct sockaddr_storage remote_addr;
         socklen_t addr_size = sizeof remote_addr;
         int accepted_fd;
-        if((accepted_fd = accept(sockfd, (struct sockaddr *)&remote_addr, &addr_size))) {
+        if((accepted_fd = accept(sockfd, (struct sockaddr *)&remote_addr, &addr_size)) == -1) {
             perror("error accepting connection");
             exit(1);
         }

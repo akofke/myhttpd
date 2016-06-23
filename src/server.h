@@ -1,1 +1,1 @@
-void setup_server(int port);
+void setup_server(char *port);

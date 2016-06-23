@@ -38,7 +38,7 @@ int main(int argc, char *argv[]) {
     printf("%s\n", opts.doc_root);
 
     int c;
-    while((c = getopt(argc, argv, "dhl:r:t:n:s:")) != -1) {
+    while((c = getopt(argc, argv, "dhl:p:r:t:n:s:")) != -1) {
         switch(c) {
             case 'd':
                 // debugging mode
@@ -58,26 +58,37 @@ int main(int argc, char *argv[]) {
             case 'p':
                 // port
 
-                /* TODO: atoi cannot detect errors so this isn't the
-                 * best solution. If I have time I'll convert this to strtol
-                 */
-
                 assert(strlen(optarg) < MAX_PORT_LEN);
                 strcpy(opts.myhttpd_port, optarg);
                 break;
             case 'r':
                 // root directory
+
                 assert(strlen(optarg) < PATH_STRSIZE);
                 strcpy(opts.doc_root, optarg);
                 break;
             case 't':
                 // queuing time
+                /* TODO: atoi cannot detect errors so this isn't the
+                 * best solution. If I have time I'll convert this to strtol
+                 */
+
+                opts.q_time_delay = atoi(optarg);
                 break;
             case 'n':
                 // number of worker threads
+
+                opts.numthreads = atoi(optarg);
                 break;
             case 's':
                 // scheduling policy
+
+                if(strcmp(optarg, "FCFS") == 0) { opts.policy = FCFS; }
+                else if (strcmp(optarg, "SJF") == 0) {opts.policy = SJF; }
+                else {
+                    fprintf(stderr, "Invalid scheduling policy\n\n");
+                    usage(1);
+                }
                 break;
             case '?':
                 // handle bad options
@@ -105,6 +116,8 @@ int main(int argc, char *argv[]) {
         sleep(20);
 
     }
+
+    setup_server(opts.myhttpd_port);
 
 }
 
