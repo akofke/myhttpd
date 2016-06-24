@@ -9,6 +9,7 @@
 #include "myhttpd.h"
 #include "server.h"
 #include "scheduler.h"
+#include "files.h"
 
 #define DEFAULT_PORT "8080"
 #define DEFAULT_TIME_DELAY 60
@@ -118,13 +119,13 @@ int main(int argc, char *argv[]) {
 
     }
     
-    if (strcmp(opts.policy, "FCFS") == 0)
-        sjf = 0;
-    else
-        sjf = 1;
-    threadlimit = opts.numthreads;
-    pthread_t schedulerthread;
-    pthread_create(&schedulerthread, NULL, &run_scheduler, NULL);
+    /* if (strcmp(opts.policy, "FCFS") == 0) */
+    /*     sjf = 0; */
+    /* else */
+    /*     sjf = 1; */
+    /* threadlimit = opts.numthreads; */
+    /* pthread_t schedulerthread; */
+    /* pthread_create(&schedulerthread, NULL, &run_scheduler, NULL); */
     
     setup_server(opts.myhttpd_port);
 

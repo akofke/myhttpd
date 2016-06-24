@@ -3,13 +3,22 @@
 #include <stdlib.h>
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <arpa/inet.h>
 #include <netdb.h>
+#include <unistd.h>
+#include <signal.h>
 
 #define BACKLOG 20
 #define BUF_SIZE 1024
 #define RECV_FLAGS 0
 
 void serve_connections(int sockfd);
+int sockfd;
+
+void cleanup(int signal) {
+    close(sockfd);
+    exit(130);
+}
 
 /*
  * Setup server to accept connections
@@ -41,7 +50,6 @@ void setup_server(const char *port) {
      * socket() call takes the domain (PF_INET), the socket type (SOCK_STREAM),
      * and the protocol (redundant; PF_INET or 0)
      */
-    int sockfd;
     if((sockfd = socket(info->ai_family, info->ai_socktype, info->ai_protocol)) < 0) {
         perror("error getting socket file descriptor");
         exit(1);
@@ -60,6 +68,7 @@ void setup_server(const char *port) {
     }
 
     freeaddrinfo(info);
+    signal(SIGINT, cleanup);
     serve_connections(sockfd);
 
 }
@@ -77,16 +86,26 @@ void serve_connections(int sockfd) {
         }
 
         // accept incoming connection
-        struct sockaddr_storage remote_addr;
+        struct sockaddr_in remote_addr;
         socklen_t addr_size = sizeof remote_addr;
+        char remote_ip_str[INET6_ADDRSTRLEN];
         int accepted_fd;
         if((accepted_fd = accept(sockfd, (struct sockaddr *)&remote_addr, &addr_size)) == -1) {
             perror("error accepting connection");
             exit(1);
         }
 
+        if(inet_ntop(remote_addr.sin_family, &(remote_addr.sin_addr), remote_ip_str, sizeof remote_ip_str) == NULL) {
+            perror("error converting ipaddr to string");
+            exit(1);
+        }
+
+        printf("Accepted connection from %s\n", remote_ip_str);
+
+
         // read from connection
         char recv_buf[BUF_SIZE];
+        memset(recv_buf, 0, BUF_SIZE);
         int recv_retval;
         if((recv_retval = recv(accepted_fd, recv_buf, BUF_SIZE, RECV_FLAGS)) == -1) {
             perror("error while recieving from client");
@@ -97,11 +116,28 @@ void serve_connections(int sockfd) {
             continue;
         }
 
+
         // debug
         printf("%s\n", recv_buf);
-        add_request(recv_buf, 0 /*whatever method louis uses to get the length of a request, call it here instead*/, accepted_fd);
+        close(accepted_fd);
+
+        char *req = strdup(recv_buf);
+
+        char *line;
+        printf("%s\n", strsep(&req, "\n"));
+        /* while((line = strsep(&req, "\n") != NULL)) { */
+        /*     printf("%s\n", line); */
+        /* } */
+
+        // add_request(recv_buf, 0 /*whatever method louis uses to get the length of a request, call it here instead*/, accepted_fd);
     }
 
 }
 
+void parse_request(char *req) {
+    char *req_firstline = strtok(req, "\n");
+
+}
+
+int get_content_len();
 
