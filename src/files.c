@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/stat.h>
 
 char *expand_path(char *req_path) {
     /*
@@ -24,4 +25,9 @@ char *expand_path(char *req_path) {
     strcat(expanded, &req_path[2]);
     return expanded;
 }
+
+int get_file_size(char *file_path) {
+    struct stat file_stat;
+    
+} 
 

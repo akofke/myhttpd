@@ -8,6 +8,8 @@
 #include <unistd.h>
 #include <signal.h>
 
+#include "http_parser.h"
+
 #define BACKLOG 20
 #define BUF_SIZE 1024
 #define RECV_FLAGS 0
@@ -46,7 +48,7 @@ void setup_server(const char *port) {
         exit(1);
     }
 
-    /* create a socket.
+   /* create a socket.
      * socket() call takes the domain (PF_INET), the socket type (SOCK_STREAM),
      * and the protocol (redundant; PF_INET or 0)
      */
@@ -97,7 +99,7 @@ void serve_connections(int sockfd) {
 
         if(inet_ntop(remote_addr.sin_family, &(remote_addr.sin_addr), remote_ip_str, sizeof remote_ip_str) == NULL) {
             perror("error converting ipaddr to string");
-            exit(1);
+           string exit(1);
         }
 
         printf("Accepted connection from %s\n", remote_ip_str);
@@ -116,28 +118,13 @@ void serve_connections(int sockfd) {
             continue;
         }
 
+        HTTPreq http_req = parse_request(recv_buf);
 
-        // debug
-        printf("%s\n", recv_buf);
-        close(accepted_fd);
+        printf("%s\n", http_req.path);
 
-        char *req = strdup(recv_buf);
-
-        char *line;
-        printf("%s\n", strsep(&req, "\n"));
-        /* while((line = strsep(&req, "\n") != NULL)) { */
-        /*     printf("%s\n", line); */
-        /* } */
+        // close(accepted_fd);
 
         // add_request(recv_buf, 0 /*whatever method louis uses to get the length of a request, call it here instead*/, accepted_fd);
     }
 
 }
-
-void parse_request(char *req) {
-    char *req_firstline = strtok(req, "\n");
-
-}
-
-int get_content_len();
-
