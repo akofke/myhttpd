@@ -36,17 +36,19 @@ int close_logging(){
 
 void log_request(char * remote_ip, time_t enq_time, time_t assn_time, char *req, char *status, int resp_size){
 
-    struct tm *enq_localtime = localtime(&enq_time);
-    struct tm *assn_localtime = localtime(&assn_time);
+    struct tm *enq_gmtime = malloc(sizeof struct tm);
+    struct tm *assn_gmtime = malloc(sizeof struct tm);
+    gmtime_r(enq_time, enq_gmtime);
+    gmtime_r(enq_time, enq_gmtime);
     char enq_time_str[DATESTR_BUF_SIZE];
     char assn_time_str[DATESTR_BUF_SIZE];
 
-    if(strftime(enq_time_str, DATESTR_BUF_SIZE, DATE_FMT, enq_localtime) == 0){
+    if(strftime(enq_time_str, DATESTR_BUF_SIZE, DATE_FMT, enq_gmtime) == 0){
         fprintf(stderr, "Date str buffer was too small\n");
         abort();
     }
     
-    if(strftime(assn_time_str, DATESTR_BUF_SIZE, DATE_FMT, assn_localtime) == 0){
+    if(strftime(assn_time_str, DATESTR_BUF_SIZE, DATE_FMT, assn_gmtime) == 0){
         fprintf(stderr, "Date str buffer was too small\n");
         abort();
     }
@@ -58,6 +60,9 @@ void log_request(char * remote_ip, time_t enq_time, time_t assn_time, char *req,
     if(log_to_stdout) {
         fprintf(stdout, LOG_FMT, remote_ip, enq_time_str, assn_time_str, req, status, resp_size);
     }
+
+    free(enq_gmtime);
+    free(assn_gmtime);
 
 
 }
