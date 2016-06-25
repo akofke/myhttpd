@@ -1,7 +1,8 @@
 #include <stdio.h>
 #include <time.h>
 #include <stdlib.h>
-#include <myhttpd.h>
+
+#include "myhttpd.h"
 
 #define LOG_FMT "%s [%s] [%s] \"%s\" %s %d\n"
 #define DATE_FMT "%d/%b/%Y:%T %Z"
@@ -34,8 +35,8 @@ int close_logging(){
 
 void log_request(char * remote_ip, time_t enq_time, time_t assn_time, char *req, char *status, int resp_size){
 
-    struct tm *enq_gmtime = malloc(sizeof struct tm);
-    struct tm *assn_gmtime = malloc(sizeof struct tm);
+    struct tm *enq_gmtime = malloc(sizeof(struct tm));
+    struct tm *assn_gmtime = malloc(sizeof(struct tm));
     gmtime_r(enq_time, enq_gmtime);
     gmtime_r(enq_time, enq_gmtime);
     char enq_time_str[DATESTR_BUF_SIZE];

@@ -7,8 +7,11 @@
 #include <stdlib.h>
 #include <time.h>
 #include <string.h>
+#include <sys/stat.h>
+#include <sys/socket.h>
 
 #include "myhttpd.h"
+#include "http_parser.h"
 
 #define H_RESP "HTTP/1.0 200 ok\n"
 #define H_DATE "Date: %s\n"
@@ -21,10 +24,12 @@
 #define DATESTR_BUF_SIZE 256
 #define MAX_HEADER_LEN 1024
 
+const char *get_ext(const char *filename);
+
 const char *header_fmt = H_RESP H_DATE H_SERVER H_LAST_MODIFIED H_CONTENT_TYPE H_CONTENT_LEN "\n";  
 
 void serve_request(HTTPreq *req) {
-    if(S_ISREG(req->stat->st_mode)) {
+    if(S_ISREG(req->file_stat->st_mode)) {
         serve_file(req);
     } else {
         /*
@@ -42,10 +47,10 @@ void serve_file(HTTPreq *req) {
         // since the file was already found by stat()
     }
 
-    struct tm *timestamp = malloc(sizeof struct tm);
-    struct tm *lastmod = malloc(sizeof struct tm);
+    struct tm *timestamp = malloc(sizeof (struct tm));
+    struct tm *lastmod = malloc(sizeof (struct tm));
     gmtime_r(time(NULL), timestamp);
-    gmtime_r((time_t)(req->file_stat->st_mtim->tv_sec), lastmod);
+    gmtime_r((time_t)(req->file_stat->st_mtim.tv_sec), lastmod);
     char timestamp_str[DATESTR_BUF_SIZE];
     char lastmod_str[DATESTR_BUF_SIZE];
     strftime(timestamp_str, DATESTR_BUF_SIZE, H_DATE_FMT, timestamp);
@@ -85,7 +90,7 @@ void serve_file(HTTPreq *req) {
     int bytes_sent;
        
     while(resp_len > 0) {
-        bytes_sent = send(req->sockfd, fbuf, resp_len, 0);
+        bytes_sent = send(req->connfd, fbuf, resp_len, 0);
         if(bytes_sent < 0) {
             // handle errors...
         }
@@ -97,13 +102,13 @@ void serve_file(HTTPreq *req) {
     free(fbuf);
     free(timestamp);
     free(lastmod);
-    close(sockfd);
-    close(fd);
+    close(req->connfd);
+    close(fp);
     free_req(req);
 }
 
 const char *get_ext(const char *filename) {
-    const char *dot = strrchar(filename, ".");
+    const char *dot = strrchr(filename, ".");
     if(!dot || dot == filename) {
         return "";
     }

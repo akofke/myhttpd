@@ -8,9 +8,9 @@ struct stat *get_stat(char *path) {
      * allocate memory for the stat buffer since we will be storing the pointer
      * to it in the http request struct
      */
-    struct stat *stat_buf = malloc(sizeof struct stat);
+    struct stat *stat_buf = malloc(sizeof(struct stat));
 
-    stat(path, stat_buf)
+    stat(path, stat_buf);
 
     return stat;
 }

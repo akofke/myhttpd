@@ -19,5 +19,6 @@ typedef struct HTTPreq {
 } HTTPreq;
 
 HTTPreq *parse_request(char *req);
+void free_req(HTTPreq *req);
 
 #endif

@@ -8,7 +8,7 @@
 struct q_node {
     HTTPreq *req;
     struct q_node *next;
-}
+};
 
 struct q_node *req_queue;
 

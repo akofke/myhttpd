@@ -25,13 +25,13 @@ int main(int argc, char *argv[]) {
      * functions and threads. Since this is only written to at the beginning
      * and *only* read from once threads are created, it doesn't need a mutex lock.
      */
-    opts = malloc(sizeof myhttpd_opts);
+    opts = malloc(sizeof (myhttpd_opts));
 
     /*
      * Find the directory myhttpd was invoked in,
      * to set the default document root
      */
-    if(getcwd(opts.doc_root, PATH_STRSIZE) == NULL) {
+    if(getcwd(opts->doc_root, PATH_MAX) == NULL) {
         perror("error getting current working directory");
         exit(1);
     }
@@ -42,7 +42,6 @@ int main(int argc, char *argv[]) {
     opts->policy = DEFAULT_SCHED_POLICY;
 
     strcpy(opts->myhttpd_port, DEFAULT_PORT);
-    printf("%s\n", opts.doc_root);
 
     int c;
     while((c = getopt(argc, argv, "dhl:p:r:t:n:s:")) != -1) {
@@ -59,7 +58,7 @@ int main(int argc, char *argv[]) {
                 // logging
 
                 // we don't want buffer overflow
-                assert(strlen(optarg) < PATH_STRSIZE);
+                assert(strlen(optarg) < PATH_MAX);
                 // add check that logfile path exists?
                 strcpy(opts->logfile_path, optarg);
                 break;
@@ -72,7 +71,7 @@ int main(int argc, char *argv[]) {
             case 'r':
                 // root directory
 
-                assert(strlen(optarg) < PATH_STRSIZE);
+                assert(strlen(optarg) < PATH_MAX);
                 strcpy(opts->doc_root, optarg);
                 break;
             case 't':
@@ -120,8 +119,6 @@ int main(int argc, char *argv[]) {
             fprintf(stderr, "error forking daemon process");
             exit(1);
         }
-
-
     }
     
 

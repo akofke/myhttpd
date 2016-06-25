@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <regex.h>
 #include <string.h>
 
@@ -29,7 +30,7 @@ HTTPreq *parse_request(char *req) {
      * will be passed around and must eventually be freed
      * by the worker thread
      */
-    HTTPreq *http_req = malloc(sizeof HTTPreq);
+    HTTPreq *http_req = malloc(sizeof (HTTPreq));
 
 
     char *req_firstline = strtok(req, "\n"); 
@@ -43,10 +44,10 @@ HTTPreq *parse_request(char *req) {
     } else if(strcmp(v, "HEAD") == 0) {
         http_req->verb = HEAD;
     } else {
-        http_req.verb = NOT_SUPPORTED;
+        http_req->verb = NOT_SUPPORTED;
         http_req->error = 1;
     }
-    http_req.path = expand_path(strtok(NULL, " "));
+    http_req->path = expand_path(strtok(NULL, " "));
     //char *version = strtok(NULL, " ");
 
     return http_req;

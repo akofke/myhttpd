@@ -6,11 +6,12 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+#include "myhttpd.h"
 #include "priority_queue.h"
 #include "http_parser.h"
 
 #define PRIORITY_COND \
-    ((options.policy == SJF) && (ptr->next>content_len < req->content_len)) 
+    ((opts->policy == SJF) && (ptr->next->req->content_len < req->content_len)) 
 
 
 /*
@@ -24,7 +25,7 @@ void add_request(HTTPreq *req) {
     if(ptr == NULL) {
         // list is empty
 
-        req_queue = malloc(sizeof struct q_node);
+        req_queue = malloc(sizeof(struct q_node));
         req_queue->req = req;
         req_queue->next = NULL;
     } else {
@@ -37,7 +38,7 @@ void add_request(HTTPreq *req) {
          * priority higher (content length smaller) than req
          */
 
-        struct q_node *newnode = malloc(sizeof struct q_node);
+        struct q_node *newnode = malloc(sizeof(struct q_node));
         newnode->req = req;
 
         newnode->next = ptr->next;
@@ -52,11 +53,12 @@ HTTPreq *remove_request() {
 
     struct q_node *first = req_queue;
     req_queue = first->next;
-    HTTPreq r = req;
+    HTTPreq *r = first->req;
 
     free(first);
     sem_post(sem_reqlist_access);
 
+    sem_post(sem_reqlist_access);
     return r;
 
     

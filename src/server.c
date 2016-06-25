@@ -7,9 +7,12 @@
 #include <netdb.h>
 #include <unistd.h>
 #include <signal.h>
+#include <sys/stat.h>
 
 #include "http_parser.h"
 #include "myhttpd.h"
+#include "files.h"
+#include "priority_queue.h"
 
 #define BACKLOG 20
 #define BUF_SIZE 1024
@@ -101,7 +104,7 @@ void serve_connections(int sockfd) {
 
         if(inet_ntop(remote_addr.sin_family, &(remote_addr.sin_addr), remote_ip_str, sizeof remote_ip_str) == NULL) {
             perror("error converting ipaddr to string");
-           string exit(1);
+            exit(1);
         }
 
         printf("Accepted connection from %s\n", remote_ip_str);
