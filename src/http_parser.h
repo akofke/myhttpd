@@ -4,15 +4,15 @@
 typedef struct HTTPreq {
     char *verb;
     char *path;
+    char *firstline;
 
     char *ipaddr;
+    int connfd;
 
-    int sockfd;
-
-    int content_len;
+    struct stat *file_stat;
 
 } HTTPreq;
 
-HTTPreq parse_request(char *req);
+HTTPreq *parse_request(char *req);
 
 #endif

@@ -9,6 +9,7 @@
 #include <signal.h>
 
 #include "http_parser.h"
+#include "myhttpd.h"
 
 #define BACKLOG 20
 #define BUF_SIZE 1024
@@ -24,10 +25,11 @@ void cleanup(int signal) {
 
 /*
  * Setup server to accept connections
+ * This is the function that the listener thread
+ * will execute.
  */
-void setup_server(const char *port) {
+void setup_server(void *arg) {
     struct addrinfo *info;
-    //get_server_addrinfo(port, info); 
     struct addrinfo hints;
     int status;
 
@@ -43,7 +45,7 @@ void setup_server(const char *port) {
     hints.ai_socktype = SOCK_STREAM;
     hints.ai_flags = AI_PASSIVE;
 
-    if((status = getaddrinfo(NULL, port, &hints, &info)) != 0) {
+    if((status = getaddrinfo(NULL, opts->myhttpd_port, &hints, &info)) != 0) {
         fprintf(stderr, "Error getting server addrinfo: %s", gai_strerror(status));
         exit(1);
     }
@@ -118,7 +120,9 @@ void serve_connections(int sockfd) {
             continue;
         }
 
-        HTTPreq http_req = parse_request(recv_buf);
+        HTTPreq *http_req = parse_request(recv_buf);
+
+        http_req->ipaddr = strdup(remote_ip_str);
 
         printf("%s\n", http_req.path);
 

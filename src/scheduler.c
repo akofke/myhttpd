@@ -101,7 +101,7 @@ int use_request(){
     struct node *reqlist = requestlist;
     struct request *requesttouse;
 
-    if (reqlist->next=NULL){ //only root is occupied
+    if (reqlist->next==NULL){ //only root is occupied
         requesttouse=reqlist->request;
     }
     else {

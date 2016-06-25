@@ -22,15 +22,24 @@
 /*     regfree(req_regex); */
 /* } */
 
-HTTPreq parse_request(char *req) {
-   char *req_firstline = strtok(req, "\n"); 
+HTTPreq *parse_request(char *req) {
 
-   HTTPreq http_req;
+    /*
+     * Allocate the request struct. The pointer to this
+     * will be passed around and must eventually be freed
+     * by the worker thread
+     */
+    HTTPreq *http_req = malloc(sizeof HTTPreq);
 
-   // TODO: do this the proper way...
-   http_req.verb = strtok(req_firstline, " ");
-   http_req.path = expand_path(strtok(NULL, " "));
-   //char *version = strtok(NULL, " ");
 
-   return http_req;
+    char *req_firstline = strtok(req, "\n"); 
+    http_req->firstline = strdup(req_firstline);
+
+
+    // TODO: do this the proper way...
+    http_req.verb = strtok(req_firstline, " ");
+    http_req.path = expand_path(strtok(NULL, " "));
+    //char *version = strtok(NULL, " ");
+
+    return http_req;
 }

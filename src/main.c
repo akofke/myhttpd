@@ -20,7 +20,12 @@ void usage(int is_err);
 
 int main(int argc, char *argv[]) {
 
-    myhttpd_opts opts;
+    /*
+     * Allocate memory for the global options struct to be shared across
+     * functions and threads. Since this is only written to at the beginning
+     * and *only* read from once threads are created, it doesn't need a mutex lock.
+     */
+    opts = malloc(sizeof myhttpd_opts);
 
     /*
      * Find the directory myhttpd was invoked in,
@@ -31,12 +36,12 @@ int main(int argc, char *argv[]) {
         exit(1);
     }
 
-    opts.debug_mode = 0;
-    opts.q_time_delay = DEFAULT_TIME_DELAY;
-    opts.numthreads = DEFAULT_THREADNUM;
-    opts.policy = DEFAULT_SCHED_POLICY;
+    opts->debug_mode = 0;
+    opts->q_time_delay = DEFAULT_TIME_DELAY;
+    opts->numthreads = DEFAULT_THREADNUM;
+    opts->policy = DEFAULT_SCHED_POLICY;
 
-    strcpy(opts.myhttpd_port, DEFAULT_PORT);
+    strcpy(opts->myhttpd_port, DEFAULT_PORT);
     printf("%s\n", opts.doc_root);
 
     int c;
@@ -44,7 +49,7 @@ int main(int argc, char *argv[]) {
         switch(c) {
             case 'd':
                 // debugging mode
-                opts.debug_mode = 1;
+                opts->debug_mode = 1;
                 break;
             case 'h':
                 // help, usage
@@ -55,19 +60,20 @@ int main(int argc, char *argv[]) {
 
                 // we don't want buffer overflow
                 assert(strlen(optarg) < PATH_STRSIZE);
-                strcpy(opts.logfile_path, optarg);
+                // add check that logfile path exists?
+                strcpy(opts->logfile_path, optarg);
                 break;
             case 'p':
                 // port
 
                 assert(strlen(optarg) < MAX_PORT_LEN);
-                strcpy(opts.myhttpd_port, optarg);
+                strcpy(opts->myhttpd_port, optarg);
                 break;
             case 'r':
                 // root directory
 
                 assert(strlen(optarg) < PATH_STRSIZE);
-                strcpy(opts.doc_root, optarg);
+                strcpy(opts->doc_root, optarg);
                 break;
             case 't':
                 // queuing time
@@ -75,18 +81,18 @@ int main(int argc, char *argv[]) {
                  * best solution. If I have time I'll convert this to strtol
                  */
 
-                opts.q_time_delay = atoi(optarg);
+                opts->q_time_delay = atoi(optarg);
                 break;
             case 'n':
                 // number of worker threads
 
-                opts.numthreads = atoi(optarg);
+                opts->numthreads = atoi(optarg);
                 break;
             case 's':
                 // scheduling policy
 
-                if(strcmp(optarg, "FCFS") == 0) { opts.policy = FCFS; }
-                else if (strcmp(optarg, "SJF") == 0) {opts.policy = SJF; }
+                if(strcmp(optarg, "FCFS") == 0) { opts->policy = FCFS; }
+                else if (strcmp(optarg, "SJF") == 0) {opts->policy = SJF; }
                 else {
                     fprintf(stderr, "Invalid scheduling policy\n\n");
                     usage(1);
@@ -105,7 +111,7 @@ int main(int argc, char *argv[]) {
 
     }
 
-    if (!opts.debug_mode) {
+    if (!opts->debug_mode) {
         /*
          * Daemonize the process using daemon() standard library call
          * TODO: only fork if -d option is not set
@@ -115,19 +121,9 @@ int main(int argc, char *argv[]) {
             exit(1);
         }
 
-        sleep(20);
 
     }
     
-    /* if (strcmp(opts.policy, "FCFS") == 0) */
-    /*     sjf = 0; */
-    /* else */
-    /*     sjf = 1; */
-    /* threadlimit = opts.numthreads; */
-    /* pthread_t schedulerthread; */
-    /* pthread_create(&schedulerthread, NULL, &run_scheduler, NULL); */
-    
-    setup_server(opts.myhttpd_port);
 
 }
 

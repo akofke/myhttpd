@@ -3,6 +3,18 @@
 #include <string.h>
 #include <sys/stat.h>
 
+struct stat *get_stat(char *path) {
+    /*
+     * allocate memory for the stat buffer since we will be storing the pointer
+     * to it in the http request struct
+     */
+    struct stat *stat_buf = malloc(sizeof struct stat);
+
+    stat(path, stat_buf)
+
+    return stat;
+}
+
 char *expand_path(char *req_path) {
     /*
      * expand exact matches of "~/" at the beginning of the path according to the
@@ -25,9 +37,3 @@ char *expand_path(char *req_path) {
     strcat(expanded, &req_path[2]);
     return expanded;
 }
-
-int get_file_size(char *file_path) {
-    struct stat file_stat;
-    
-} 
-
