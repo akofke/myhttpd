@@ -37,7 +37,15 @@ HTTPreq *parse_request(char *req) {
 
 
     // TODO: do this the proper way...
-    http_req.verb = strtok(req_firstline, " ");
+    char *v = strtok(req_firstline, " ");
+    if(strcmp(v, "GET") == 0) {
+        http_req->verb = GET; 
+    } else if(strcmp(v, "HEAD") == 0) {
+        http_req->verb = HEAD;
+    } else {
+        http_req.verb = NOT_SUPPORTED;
+        http_req->error = 1;
+    }
     http_req.path = expand_path(strtok(NULL, " "));
     //char *version = strtok(NULL, " ");
 

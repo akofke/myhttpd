@@ -120,15 +120,24 @@ void serve_connections(int sockfd) {
             continue;
         }
 
+        /*
+         * create the request struct and add the verb, path, and first line
+         */
         HTTPreq *http_req = parse_request(recv_buf);
 
         http_req->ipaddr = strdup(remote_ip_str);
+        http_req->connfd = accepted_fd;
 
-        printf("%s\n", http_req.path);
+        // TODO: check for errors
+        http_req->file_stat = get_stat(http_req->path);
 
-        // close(accepted_fd);
+        /*
+         * content length is the file size if GET, 0 if HEAD.
+         */
+        http_req->content_len = (http_req->verb == GET) ? http_req->file_stat->st_size : 0;
 
-        // add_request(recv_buf, 0 /*whatever method louis uses to get the length of a request, call it here instead*/, accepted_fd);
+        // add to the request queue
+        add_request(http_req);
     }
 
 }
