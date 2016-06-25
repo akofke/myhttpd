@@ -51,3 +51,11 @@ HTTPreq *parse_request(char *req) {
 
     return http_req;
 }
+
+void free_req(HTTPreq *req) {
+    free(req->path);
+    free(req->firstline);
+    free(req->ipaddr);
+    free(req->file_stat);
+    free(req);
+}
