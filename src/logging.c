@@ -1,15 +1,13 @@
 #include <stdio.h>
 #include <time.h>
 #include <stdlib.h>
+#include <myhttpd.h>
 
 #define LOG_FMT "%s [%s] [%s] \"%s\" %s %d\n"
-#define DATE_FMT "%d/%b/%Y:%T %z"
+#define DATE_FMT "%d/%b/%Y:%T %Z"
 #define DATESTR_BUF_SIZE 256
 
 FILE *log_file = NULL;
-
-// ugly way of doing this
-int log_to_stdout = 0;
 
 /*
  * Open the log file and keep the open file pointer, since we will be making many logging calls.
@@ -57,7 +55,7 @@ void log_request(char * remote_ip, time_t enq_time, time_t assn_time, char *req,
         fprintf(log_file, LOG_FMT, remote_ip, enq_time_str, assn_time_str, req, status, resp_size);
     }
 
-    if(log_to_stdout) {
+    if(opts->debug_mode) {
         fprintf(stdout, LOG_FMT, remote_ip, enq_time_str, assn_time_str, req, status, resp_size);
     }
 
